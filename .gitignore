@@ -1,0 +1,10 @@
+# Maven build folder
+target/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
