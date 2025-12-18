@@ -57,6 +57,9 @@ public class BaseLogin {
             {
             System.out.println("Network Error");	
             }
+            else {
+            	System.out.println("Navigated to URL");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
