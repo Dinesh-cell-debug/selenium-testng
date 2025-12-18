@@ -52,6 +52,11 @@ public class BaseLogin {
             wait.until(d -> !d.getCurrentUrl().contains("/login"));
 
             System.out.println("✅ Logged in successfully (BaseLogin)");
+            
+            if (LOGIN_URL!= null)
+            {
+            System.out.println("Network Error");	
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
