@@ -6,7 +6,10 @@ import org.openqa.selenium.*;
 import org.testng.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -15,15 +18,17 @@ public class ExtentListener implements ITestListener {
     private static ExtentReports extent;
     private static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
 
+    // ---------------- START SUITE ----------------
     @Override
     public void onStart(ITestContext context) {
 
-        String time = LocalDateTime.now()
+        String timeStamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 
-        ExtentSparkReporter spark =
-                new ExtentSparkReporter("reports/ExtentReport_" + time + ".html");
+        String reportPath = System.getProperty("user.dir")
+                + "/reports/ExtentReport_" + timeStamp + ".html";
 
+        ExtentSparkReporter spark = new ExtentSparkReporter(reportPath);
         spark.config().setReportName("Claims Concierge Automation Report");
         spark.config().setDocumentTitle("Dashboard Automation");
 
@@ -31,10 +36,12 @@ public class ExtentListener implements ITestListener {
         extent.attachReporter(spark);
 
         extent.setSystemInfo("OS", System.getProperty("os.name"));
-        extent.setSystemInfo("Java", System.getProperty("java.version"));
+        extent.setSystemInfo("Java Version", System.getProperty("java.version"));
         extent.setSystemInfo("Browser", "Chrome");
+        extent.setSystemInfo("Environment", "QA");
     }
 
+    // ---------------- TEST START ----------------
     @Override
     public void onTestStart(ITestResult result) {
         ExtentTest extentTest =
@@ -42,15 +49,18 @@ public class ExtentListener implements ITestListener {
         test.set(extentTest);
     }
 
+    // ---------------- TEST PASS ----------------
     @Override
     public void onTestSuccess(ITestResult result) {
-        test.get().pass("✅ Test Passed");
+        test.get().pass("✅ Test Passed Successfully");
     }
 
+    // ---------------- TEST FAIL ----------------
     @Override
     public void onTestFailure(ITestResult result) {
 
         ExtentTest extentTest = test.get();
+        extentTest.fail("❌ Test Failed");
         extentTest.fail(result.getThrowable());
 
         try {
@@ -59,32 +69,52 @@ public class ExtentListener implements ITestListener {
             driverField.setAccessible(true);
             WebDriver driver = (WebDriver) driverField.get(testClass);
 
-            File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            if (driver != null) {
 
-            String time = LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+                File src = ((TakesScreenshot) driver)
+                        .getScreenshotAs(OutputType.FILE);
 
-            String path = "reports/screenshots/"
-                    + result.getMethod().getMethodName()
-                    + "_" + time + ".png";
+                String timeStamp = LocalDateTime.now()
+                        .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 
-            new File("reports/screenshots").mkdirs();
-            src.renameTo(new File(path));
+                String screenshotDir =
+                        System.getProperty("user.dir") + "/reports/screenshots/";
 
-            extentTest.addScreenCaptureFromPath(path);
+                new File(screenshotDir).mkdirs();
 
-        } catch (Exception e) {
+                String screenshotPath = screenshotDir
+                        + result.getMethod().getMethodName()
+                        + "_" + timeStamp + ".png";
+
+                Files.copy(src.toPath(),
+                        new File(screenshotPath).toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+
+                extentTest.addScreenCaptureFromPath(screenshotPath);
+
+            } else {
+                extentTest.warning("⚠ WebDriver instance was null. Screenshot not captured.");
+            }
+
+        } catch (NoSuchFieldException | IllegalAccessException | IOException e) {
             extentTest.warning("⚠ Screenshot capture failed: " + e.getMessage());
         }
     }
 
+    // ---------------- TEST SKIP ----------------
     @Override
     public void onTestSkipped(ITestResult result) {
         test.get().skip("⏭ Test Skipped");
+        if (result.getThrowable() != null) {
+            test.get().skip(result.getThrowable());
+        }
     }
 
+    // ---------------- FINISH SUITE ----------------
     @Override
     public void onFinish(ITestContext context) {
-        extent.flush();
+        if (extent != null) {
+            extent.flush();
+        }
     }
 }

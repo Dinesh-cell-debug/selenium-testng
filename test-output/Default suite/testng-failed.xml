@@ -3,16 +3,18 @@
 <suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
   <test thread-count="5" name="Default test(failed)">
     <classes>
-      <class name="Claims.Project.DashboardTest">
+      <class name="Claims.PartnerAdmin.Partner_Admin_FlowTest">
         <methods>
+          <include name="verifyDashboardActiveClaimsCount"/>
+          <include name="verifyViewClaimsNavigation"/>
+          <include name="verifyRecentClaimStatus"/>
+          <include name="verifyPartnerAdminLogin"/>
+          <include name="verifyPartnerRefereeList"/>
           <include name="tearDown"/>
-          <include name="screenshotOnFailure"/>
-          <include name="setupAndLogin"/>
-          <include name="TC_06_VerifyValidSearchShowsCorrectResult"/>
-          <include name="TC_07_VerifyPartnerLoginNavigation"/>
-          <include name="TC_05_VerifyInvalidSearchShowsEmpty"/>
+          <include name="setup"/>
+          <include name="verifyRecentClaimsList"/>
         </methods>
-      </class> <!-- Claims.Project.DashboardTest -->
+      </class> <!-- Claims.PartnerAdmin.Partner_Admin_FlowTest -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->

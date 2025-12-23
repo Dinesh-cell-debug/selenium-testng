@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <suite name="MySuite">
-  <test name="SmokeTest">
-    <classes>
-            <class name="tests.DashboardTest"/>
-    </classes>
-  </test>
+
+    <listeners>
+        <listener class-name="Claims.Project.listeners.ExtentListener"/>
+    </listeners>
+
+    <test name="SmokeTest">
+        <classes>
+            <class name="Claims.PartnerAdmin.Partner_Admin_FlowTest"/>
+        </classes>
+    </test>
+
 </suite>
