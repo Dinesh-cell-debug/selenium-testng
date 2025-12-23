@@ -34,6 +34,10 @@ public class Partner_Admin_FlowTest extends Base_Test {
     public void verifyViewClaimsNavigation() {
 
         Dashboard_Page dashboard = new Dashboard_Page(driver);
+
+        // Ensure dashboard fully loaded
+        dashboard.waitForDashboardToLoad();
+
         dashboard.clickViewClaimsForPartnerReferee();
 
         Assert.assertTrue(
@@ -42,10 +46,12 @@ public class Partner_Admin_FlowTest extends Base_Test {
         );
     }
 
+
     @Test(priority = 4)
     public void verifyRecentClaimsListAndStatus() {
 
         Dashboard_Page dashboard = new Dashboard_Page(driver);
+        dashboard.waitForDashboardToLoad();
         dashboard.clickViewClaimsForPartnerReferee();
 
         Claims_Page claims = new Claims_Page(driver);

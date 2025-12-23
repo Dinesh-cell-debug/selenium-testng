@@ -1,6 +1,7 @@
 package Claims.PartnerAdmin;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -53,10 +54,41 @@ public class Dashboard_Page {
         wait.until(ExpectedConditions.visibilityOfElementLocated(partnerRefereeRow));
         return true;
     }
+    public void waitForDashboardToLoad() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[normalize-space()='Partner Referees']")
+        ));
+    }
+
 
 
     public void clickViewClaimsForPartnerReferee() {
-        System.out.println("Clicking View Claims button");
-        wait.until(ExpectedConditions.elementToBeClickable(viewClaimsBtn)).click();
+
+        By enabledViewClaimsBtn =
+                By.xpath("//button[normalize-space()='View Claims' and not(@disabled)]");
+
+        WebElement button = wait.until(
+                ExpectedConditions.presenceOfElementLocated(enabledViewClaimsBtn)
+        );
+
+        // Scroll into view (IMPORTANT)
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].scrollIntoView({block:'center'});", button);
+
+        // Wait until clickable
+        wait.until(ExpectedConditions.elementToBeClickable(button));
+
+        System.out.println("Clicking ENABLED View Claims button");
+
+        try {
+            button.click();
+        } catch (Exception e) {
+            // Fallback for React button
+            ((JavascriptExecutor) driver)
+                    .executeScript("arguments[0].click();", button);
+        }
+
+        // Wait for navigation
+        wait.until(ExpectedConditions.urlContains("claims"));
     }
 }
